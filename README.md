@@ -1,5 +1,8 @@
 # Kuggle
-Kuggle Sessioin and Study
+
+<img src="https://github.com/seungwoolee-222/Kuggle/assets/86904141/607ebf41-711f-405e-856c-417654a059c4" width="50%" height="50%">
+
+#### Kuggle Sessioin and Study
 
 ## Session
 
@@ -25,6 +28,5 @@ Kuggle Sessioin and Study
 
 ### [1차 프로젝트 - 주차수요 예측](https://tgool.notion.site/Kuggle-9-1-Regression-d9c6d068d1c14ed2aed276d2fa2721b9)
 
-![image](https://github.com/seungwoolee-222/Kuggle/assets/86904141/417db785-36d5-4e4c-83d4-385b77c04719)
-
+<img width="598" alt="스크린샷 2023-09-22 오후 8 15 20" src="https://github.com/seungwoolee-222/Kuggle/assets/86904141/073fb9e4-1679-4bcc-b028-7e92bf902feb">
 
