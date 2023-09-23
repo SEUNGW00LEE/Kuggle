@@ -180,3 +180,67 @@ object_columns.remove('단지코드')
 
 train_encoded = pd.get_dummies(train, columns=object_columns)
 test_encoded = pd.get_dummies(test, columns=object_columns)
+
+train_store_data = train_encoded[train_encoded['임대건물구분_상가'] == 1].drop(columns=['임대료', '임대보증금'])
+train_non_store_data = train_encoded[train_encoded['임대건물구분_상가'] != 1]
+
+test_store_data = test_encoded[test_encoded['임대건물구분_상가'] == 1].drop(columns=['임대료', '임대보증금'])
+test_non_store_data = test_encoded[test_encoded['임대건물구분_상가'] != 1]
+
+from xgboost import XGBRegressor
+from sklearn.model_selection import GridSearchCV
+from sklearn.metrics import mean_absolute_error
+
+# List to store results for comparison
+results = []
+
+# Define the parameter grid for XGBoost
+param_grid = {'max_depth' : np.arange(3,9,1) ,
+                  "n_estimators": [100],
+                  'min_child_weight' : np.arange(1, 8, 1), 
+                  'gamma' : [0,1,2,3],
+                  "learning_rate": [0.015,0.02,0.025, 0.03, 0.035, 0.04, 0.05 ],
+                  'subsample' :np.arange(0.8, 1.0, 0.1)}
+
+# Define datasets
+datasets = {
+    '상가': (train_store_data, test_store_data),
+    '비상가': (train_non_store_data, test_non_store_data)
+}
+
+# Define scalers
+scalers = {
+    'MinMaxScaler': MinMaxScaler(),
+    'StandardScaler': StandardScaler()
+}
+
+# Loop through datasets (상가 and 비상가)
+for dataset_name, (train_data, test_data) in datasets.items():
+    
+    # Split data
+    X_train = train_data.drop(columns=['단지코드', '등록차량수'])
+    y_train = train_data['등록차량수']
+    X_test = test_data.drop(columns=['단지코드'])
+    
+    # Loop through scalers
+    for scaler_name, scaler in scalers.items():
+        
+        # Normalize data
+        X_train_scaled = scaler.fit_transform(X_train)
+        X_test_scaled = scaler.transform(X_test)
+        
+        # Grid Search with XGBoost
+        model = XGBRegressor(objective='reg:squarederror', random_state=42)
+        grid_search = GridSearchCV(model, param_grid, cv=3, scoring='neg_mean_absolute_error', n_jobs=-1)
+        grid_search.fit(X_train_scaled, y_train)
+        
+        # Store results
+        results.append({
+            'dataset': dataset_name,
+            'scaler': scaler_name,
+            'best_params': grid_search.best_params_,
+            'best_score': -grid_search.best_score_
+        })
+
+results_df = pd.DataFrame(results)
+results_df
